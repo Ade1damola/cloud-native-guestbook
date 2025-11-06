@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud-Native Quote Generator</title>
+    <!-- We're loading Tailwind CSS directly from a CDN to make it look nice fast -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* This is custom CSS for the Inter font and a smooth transition effect */
+        body { font-family: 'Inter', sans-serif; background-color: #111827; }
+        .quote-card { transition: transform 0.3s ease-in-out; }
+        .quote-card:hover { transform: scale(1.02); }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="quote-card bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-lg text-white">
+        <!-- Main title -->
+        <h1 class="text-3xl font-bold mb-6 text-center text-indigo-400">
+            Cloud-Native Quote of the Day
+        </h1>
+        
+        <!-- Loading state -->
+        <div id="loading" class="text-center text-gray-400">
+            <svg class="animate-spin h-5 w-5 mr-3 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Fetching wisdom...
+        </div>
+        
+        <!-- Content area -->
+        <div id="content" class="hidden">
+            <p class="text-xl italic mb-4 border-l-4 border-indigo-500 pl-4" id="quote-text">
+                <!-- Quote text goes here -->
+            </p>
+            <p class="text-right text-gray-400 font-semibold" id="quote-author">
+                <!-- Author goes here -->
+            </p>
+            <p class="mt-4 text-xs text-center text-gray-600" id="quote-timestamp">
+                <!-- Timestamp goes here -->
+            </p>
+            <p class="mt-6 text-sm text-center text-green-400 font-medium">
+                Connection Status: <span class="font-bold">Backend Communication Successful!</span>
+            </p>
+        </div>
+
+    </div>
+
+    <!-- JavaScript to fetch the quote -->
+    <script>
+        // When the page loads, run the function to fetch the data.
+        document.addEventListener('DOMContentLoaded', fetchQuote);
+
+        // The main function to talk to the backend.
+        async function fetchQuote() {
+            // NOTE: When running locally (Phase 2), this is the Docker service name.
+            // When running in the cloud (Phase 3), this needs to be an actual URL.
+            // For now, we'll keep it simple for local docker-compose testing.
+            const backendUrl = 'http://localhost:3000/quote'; 
+
+            try {
+                // Try to get data from the backend.
+                const response = await fetch(backendUrl);
+                // Convert the response into a JavaScript object (JSON).
+                const data = await response.json();
+
+                // Find the elements on the page.
+                const quoteText = document.getElementById('quote-text');
+                const quoteAuthor = document.getElementById('quote-author');
+                const quoteTimestamp = document.getElementById('quote-timestamp');
+                const loadingDiv = document.getElementById('loading');
+                const contentDiv = document.getElementById('content');
+
+                // Update the text on the page with the fetched data.
+                quoteText.textContent = `"${data.quote}"`;
+                quoteAuthor.textContent = `- ${data.author}`;
+                quoteTimestamp.textContent = `Last fetched: ${new Date(data.timestamp).toLocaleTimeString()}`;
+
+                // Hide the loading message and show the content.
+                loadingDiv.classList.add('hidden');
+                contentDiv.classList.remove('hidden');
+
+            } catch (error) {
+                // If anything goes wrong (e.g., backend is down), show an error.
+                console.error('Error fetching quote:', error);
+                document.getElementById('loading').innerHTML = 
+                    `<p class="text-red-500 font-bold">Error: Could not connect to the Backend API.</p>
+                     <p class="text-sm text-gray-400 mt-2">Check if the backend container is running!</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
