@@ -5,14 +5,14 @@ services:
     build: ./backend
     ports:
       - "3000:3000"
-    container_name: guestbook-backend
+    container_name: backend
     restart: always
 
   frontend:
     build: ./frontend
     ports:
       - "8080:8080"
-    container_name: guestbook-frontend
+    container_name: frontend
     restart: always
     depends_on:
       - backend
