@@ -9,7 +9,7 @@ terraform {
 
   backend "s3" {
     # Create S3 bucket manually in AWS first
-    bucket = "my-terraform-remote-state-bucket"
+    bucket = "capstone-cloud-app-state-bucket"
     key    = "capstone-project/terraform.tfstate"
     region = "us-east-1"
     encrypt = true
